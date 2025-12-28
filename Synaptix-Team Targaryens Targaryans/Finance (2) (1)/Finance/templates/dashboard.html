@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Financial Memory Agent</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57, #ff9ff3);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            min-height: 100vh;
+        }
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            color: white; padding: 30px; border-radius: 20px; margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            transform: perspective(1000px) rotateX(5deg);
+            transition: transform 0.3s ease;
+        }
+        .header:hover { transform: perspective(1000px) rotateX(0deg) scale(1.02); }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .header p { opacity: 0.9; font-size: 1.1em; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px; }
+        .card { 
+            background: linear-gradient(145deg, #ffffff, #f0f0f0); 
+            padding: 25px; border-radius: 20px; 
+            box-shadow: 20px 20px 60px #bebebe, -20px -20px 60px #ffffff;
+            transform: perspective(1000px) rotateY(5deg);
+            transition: all 0.3s ease;
+        }
+        .card:hover { 
+            transform: perspective(1000px) rotateY(0deg) translateY(-10px);
+            box-shadow: 25px 25px 80px #bebebe, -25px -25px 80px #ffffff;
+        }
+        .card h3 { color: #2d3748; margin-bottom: 15px; font-size: 1.3em; text-shadow: 1px 1px 2px rgba(0,0,0,0.1); }
+        .metric { display: flex; justify-content: space-between; margin: 10px 0; padding: 10px 0; border-bottom: 1px solid #e2e8f0; }
+        .metric:last-child { border-bottom: none; }
+        .metric-label { color: #718096; }
+        .metric-value { font-weight: 600; color: #2d3748; }
+        .insights { grid-column: 1 / -1; }
+        .insight { 
+            background: linear-gradient(145deg, #f7fafc, #e2e8f0); 
+            border-left: 4px solid #4299e1; padding: 20px; margin: 15px 0; 
+            border-radius: 15px;
+            box-shadow: 10px 10px 20px #d1d9e6, -10px -10px 20px #ffffff;
+        }
+        .insight-title { font-weight: 600; color: #2d3748; margin-bottom: 8px; }
+        .insight-desc { color: #4a5568; margin-bottom: 8px; }
+        .insight-rec { color: #2b6cb0; font-style: italic; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; color: #4a5568; font-weight: 500; }
+        .form-group input, .form-group select { 
+            width: 100%; padding: 12px; border: none; border-radius: 10px; 
+            box-shadow: inset 5px 5px 10px #d1d9e6, inset -5px -5px 10px #ffffff;
+            background: #f0f0f0;
+        }
+        .btn { 
+            background: linear-gradient(145deg, #4299e1, #3182ce); 
+            color: white; padding: 12px 24px; border: none; border-radius: 15px; 
+            cursor: pointer; font-weight: 500;
+            box-shadow: 8px 8px 16px #bebebe, -8px -8px 16px #ffffff;
+            transition: all 0.3s ease;
+        }
+        .btn:hover { 
+            transform: translateY(-2px);
+            box-shadow: 12px 12px 20px #bebebe, -12px -12px 20px #ffffff;
+        }
+        .btn-demo { background: linear-gradient(145deg, #48bb78, #38a169); margin-left: 10px; }
+        .btn-clear { background: linear-gradient(145deg, #f56565, #e53e3e); margin-left: 10px; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 10px; }
+        .status.success { background: #c6f6d5; color: #22543d; }
+        .nav { 
+            background: linear-gradient(145deg, #ffffff, #f0f0f0); 
+            padding: 15px; border-radius: 15px; margin-bottom: 20px; 
+            box-shadow: 10px 10px 20px #d1d9e6, -10px -10px 20px #ffffff;
+        }
+        .nav a { text-decoration: none; color: #4a5568; margin-right: 20px; font-weight: 500; transition: color 0.3s ease; }
+        .nav a:hover { color: #2d3748; text-shadow: 1px 1px 2px rgba(0,0,0,0.1); }
+        .chart-container { 
+            background: linear-gradient(145deg, #ffffff, #f0f0f0);
+            padding: 20px; border-radius: 15px; margin: 20px 0;
+            box-shadow: 15px 15px 30px #bebebe, -15px -15px 30px #ffffff;
+        }
+        .info-section {
+            background: linear-gradient(145deg, #e6fffa, #b2f5ea);
+            padding: 20px; border-radius: 15px; margin-top: 30px;
+            box-shadow: 10px 10px 20px #a0aec0, -10px -10px 20px #ffffff;
+        }
+        .info-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;
+        }
+        .info-card {
+            background: linear-gradient(145deg, #ffffff, #f7fafc);
+            padding: 15px; border-radius: 10px; text-align: center;
+            box-shadow: 5px 5px 10px #d1d9e6, -5px -5px 10px #ffffff;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧠 Live Financial Memory Agent</h1>
+            <p>Intelligent business insights that adapt and evolve with your data</p>
+            <p style="margin-top: 10px; opacity: 0.9;">Welcome, {{ user.name }}!</p>
+        </div>
+
+        <div class="nav">
+            <a href="/dashboard">Dashboard</a>
+            <a href="/user-dashboard">My Data</a>
+            <a href="/revenue">Revenue</a>
+            <a href="/tax-rules">Tax Rules</a>
+            <a href="/competitors">Competitors</a>
+            <a href="/profit-analysis">Profit Analysis</a>
+            <a href="/loss-analysis">Loss Analysis</a>
+            <a href="/tax-analysis">Tax Analysis</a>
+            <a href="/data-history">Data History</a>
+            <a href="/" onclick="document.cookie='session_token=; path=/'; return true;">Logout</a>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h3>📊 Financial Summary</h3>
+                {% if summary.get('status') == 'No data available' %}
+                    <p style="color: #718096; text-align: center; padding: 20px;">No financial data yet. Add revenue data to get started!</p>
+                {% else %}
+                    <div class="metric">
+                        <span class="metric-label">Latest Month</span>
+                        <span class="metric-value">{{ summary.latest_month }}</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Latest Revenue</span>
+                        <span class="metric-value">₹{{ "{:,.0f}".format(summary.latest_revenue) }}</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Latest Expenses</span>
+                        <span class="metric-value">₹{{ "{:,.0f}".format(summary.latest_expenses) }}</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Latest Profit</span>
+                        <span class="metric-value">₹{{ "{:,.0f}".format(summary.latest_revenue - summary.latest_expenses) }}</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Months Tracked</span>
+                        <span class="metric-value">{{ summary.months_tracked }}</span>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="card">
+                <h3>➕ Add Revenue Data</h3>
+                <form id="revenueForm">
+                    <div class="form-group">
+                        <label>Month (YYYY-MM)</label>
+                        <input type="text" id="month" placeholder="2024-05" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Revenue (₹)</label>
+                        <input type="number" id="revenue" placeholder="50000" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Expenses (₹)</label>
+                        <input type="number" id="expenses" placeholder="30000" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Tax Type</label>
+                        <select id="taxType" required>
+                            <option value="service_tax">Service Tax</option>
+                            <option value="product_tax">Product Tax</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Service Revenue (₹)</label>
+                        <input type="number" id="serviceRevenue" placeholder="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Product Revenue (₹)</label>
+                        <input type="number" id="productRevenue" placeholder="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Business Type</label>
+                        <select id="businessType" required>
+                            <option value="retail">Retail</option>
+                            <option value="services">Services</option>
+                            <option value="manufacturing">Manufacturing</option>
+                            <option value="technology">Technology</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn">Add Data & Analyze</button>
+                    <button type="button" class="btn btn-demo" onclick="loadDemoData()">Load Demo Data</button>
+                    <button type="button" class="btn btn-clear" onclick="clearRevenueForm()">Clear Form</button>
+                </form>
+                
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+                    <h4 style="margin-bottom: 10px;">📊 Upload Dataset File</h4>
+                    <p style="color: #718096; font-size: 0.9em; margin-bottom: 10px;">Choose CSV or JSON file (fresh_2025_data.csv recommended)</p>
+                    <input type="file" id="datasetFile" accept=".json,.csv" style="margin-bottom: 10px;">
+                    <button type="button" class="btn" onclick="uploadDataset()">Load Dataset File</button>
+                    <div id="extractedPreview" style="display: none; margin-top: 15px; padding: 15px; background: #f7fafc; border-radius: 8px;">
+                        <h5>📋 Extracted Data Preview:</h5>
+                        <div id="previewContent"></div>
+                    </div>
+                </div>
+                <div id="status"></div>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <h3>📈 Revenue Trend Chart</h3>
+            <canvas id="revenueChart" width="400" height="200"></canvas>
+        </div>
+
+        <div class="card insights">
+            <h3>🔍 Live Financial Insights</h3>
+            {% if insights %}
+                {% for insight in insights %}
+                <div class="insight">
+                    <div class="insight-title">{{ insight.title }}</div>
+                    <div class="insight-desc">{{ insight.description }}</div>
+                    <div class="insight-rec">💡 {{ insight.recommendation }}</div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p style="color: #718096; text-align: center; padding: 20px;">No insights yet. Add financial data to see intelligent analysis!</p>
+            {% endif %}
+        </div>
+
+        <div class="info-section">
+            <h3>📊 Tax Rates & Information</h3>
+            <div class="info-grid">
+                <div class="info-card">
+                    <h4>Service Tax</h4>
+                    <p><strong>Small:</strong> 18%</p>
+                    <p><strong>Medium:</strong> 28%</p>
+                </div>
+                <div class="info-card">
+                    <h4>Product Tax</h4>
+                    <p><strong>Retail:</strong> 12-18%</p>
+                    <p><strong>Manufacturing:</strong> 15%</p>
+                </div>
+                <div class="info-card">
+                    <h4>Technology</h4>
+                    <p><strong>Services:</strong> 20%</p>
+                    <p><strong>Startups:</strong> Benefits Available</p>
+                </div>
+                <div class="info-card">
+                    <h4>Profit Margins</h4>
+                    <p><strong>Retail:</strong> 12%</p>
+                    <p><strong>Services:</strong> 25%</p>
+                    <p><strong>Tech:</strong> 35%</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let revenueChart;
+        
+        function initChart() {
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+            revenueChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Revenue (₹)',
+                        data: [],
+                        borderColor: '#4299e1',
+                        backgroundColor: 'rgba(66, 153, 225, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }, {
+                        label: 'Expenses (₹)',
+                        data: [],
+                        borderColor: '#f56565',
+                        backgroundColor: 'rgba(245, 101, 101, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'top' }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+        
+        function updateChart() {
+            fetch('/api/chart-data')
+                .then(response => response.json())
+                .then(data => {
+                    revenueChart.data.labels = data.months;
+                    revenueChart.data.datasets[0].data = data.revenue;
+                    revenueChart.data.datasets[1].data = data.expenses;
+                    revenueChart.update();
+                })
+                .catch(error => console.log('Chart update failed'));
+        }
+        
+        function clearRevenueForm() {
+            document.getElementById('month').value = '';
+            document.getElementById('revenue').value = '';
+            document.getElementById('expenses').value = '';
+            document.getElementById('serviceRevenue').value = '';
+            document.getElementById('productRevenue').value = '';
+            document.getElementById('businessType').selectedIndex = 0;
+            document.getElementById('taxType').selectedIndex = 0;
+            document.getElementById('status').innerHTML = '<div class="status success">Form cleared successfully!</div>';
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            initChart();
+            updateChart();
+        });
+        
+        document.getElementById('revenueForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const data = {
+                month: document.getElementById('month').value,
+                revenue: parseFloat(document.getElementById('revenue').value),
+                expenses: parseFloat(document.getElementById('expenses').value),
+                business_type: document.getElementById('businessType').value,
+                tax_type: document.getElementById('taxType').value,
+                service_revenue: parseFloat(document.getElementById('serviceRevenue').value) || 0,
+                product_revenue: parseFloat(document.getElementById('productRevenue').value) || 0
+            };
+            
+            try {
+                const response = await fetch('/api/revenue', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    document.getElementById('status').innerHTML = 
+                        `<div class="status success">✅ ${result.message}. Generated ${result.new_insights} new insights!</div>`;
+                    updateChart();
+                    setTimeout(() => location.reload(), 2000);
+                } else {
+                    document.getElementById('status').innerHTML = 
+                        `<div class="status error">❌ Error: ${result.detail}</div>`;
+                }
+            } catch (error) {
+                document.getElementById('status').innerHTML = 
+                    `<div class="status error">❌ Network error: ${error.message}</div>`;
+            }
+        });
+        
+        async function loadDemoData() {
+            try {
+                const response = await fetch('/api/demo-data', { method: 'POST' });
+                const result = await response.json();
+                
+                document.getElementById('status').innerHTML = 
+                    `<div class="status success">✅ ${result.message}. Generated ${result.total_insights_generated} insights!</div>`;
+                setTimeout(() => location.reload(), 2000);
+            } catch (error) {
+                document.getElementById('status').innerHTML = 
+                    `<div class="status error">❌ Error loading demo data</div>`;
+            }
+        }
+        
+        function uploadDataset() {
+            var fileInput = document.getElementById('datasetFile');
+            var file = fileInput.files[0];
+            var statusDiv = document.getElementById('status');
+            
+            if (!file) {
+                statusDiv.innerHTML = '<div class="status error">Please select a CSV or JSON file</div>';
+                return;
+            }
+            
+            // Show preview of file contents
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var content = e.target.result;
+                var previewDiv = document.getElementById('previewContent');
+                var extractedDiv = document.getElementById('extractedPreview');
+                
+                if (file.name.endsWith('.csv')) {
+                    var lines = content.split('\n').slice(0, 6); // Show first 5 data rows + header
+                    var preview = '<table style="width: 100%; border-collapse: collapse; font-size: 0.9em;">';
+                    lines.forEach(function(line, index) {
+                        if (line.trim()) {
+                            var cells = line.split(',');
+                            preview += '<tr style="' + (index === 0 ? 'background: #edf2f7; font-weight: bold;' : '') + '">';
+                            cells.forEach(function(cell) {
+                                preview += '<td style="padding: 8px; border: 1px solid #e2e8f0;">' + cell + '</td>';
+                            });
+                            preview += '</tr>';
+                        }
+                    });
+                    preview += '</table>';
+                } else {
+                    var jsonData = JSON.parse(content);
+                    preview = '<pre style="background: #f7fafc; padding: 10px; border-radius: 4px; overflow-x: auto; font-size: 0.8em;">' + 
+                             JSON.stringify(jsonData.slice(0, 3), null, 2) + '</pre>';
+                }
+                
+                previewDiv.innerHTML = preview;
+                extractedDiv.style.display = 'block';
+            };
+            reader.readAsText(file);
+            
+            // Upload file
+            var formData = new FormData();
+            formData.append('file', file);
+            
+            fetch('/api/upload-dataset', {
+                method: 'POST',
+                body: formData
+            })
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(result) {
+                if (result.status === 'success') {
+                    statusDiv.innerHTML = '<div class="status success">Success! ' + result.message + '. Generated ' + result.total_insights_generated + ' insights!</div>';
+                    setTimeout(function() {
+                        location.reload();
+                    }, 2000);
+                } else {
+                    statusDiv.innerHTML = '<div class="status error">Error: ' + result.detail + '</div>';
+                }
+            })
+            .catch(function(error) {
+                statusDiv.innerHTML = '<div class="status error">Upload error: ' + error.message + '</div>';
+            });
+        }
+    </script>
+</body>
+</html>

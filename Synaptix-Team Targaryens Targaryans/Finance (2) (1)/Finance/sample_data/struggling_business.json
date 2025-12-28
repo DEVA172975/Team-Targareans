@@ -1,0 +1,47 @@
+[
+  {
+    "month": "2024-01",
+    "revenue": 35000,
+    "expenses": 32000,
+    "business_type": "retail",
+    "tax_type": "product_tax",
+    "service_revenue": 5000,
+    "product_revenue": 30000
+  },
+  {
+    "month": "2024-02",
+    "revenue": 28000,
+    "expenses": 35000,
+    "business_type": "retail",
+    "tax_type": "product_tax",
+    "service_revenue": 3000,
+    "product_revenue": 25000
+  },
+  {
+    "month": "2024-03",
+    "revenue": 32000,
+    "expenses": 30000,
+    "business_type": "retail",
+    "tax_type": "product_tax",
+    "service_revenue": 4000,
+    "product_revenue": 28000
+  },
+  {
+    "month": "2024-04",
+    "revenue": 38000,
+    "expenses": 33000,
+    "business_type": "retail",
+    "tax_type": "product_tax",
+    "service_revenue": 6000,
+    "product_revenue": 32000
+  },
+  {
+    "month": "2024-05",
+    "revenue": 41000,
+    "expenses": 34000,
+    "business_type": "retail",
+    "tax_type": "product_tax",
+    "service_revenue": 7000,
+    "product_revenue": 34000
+  }
+]

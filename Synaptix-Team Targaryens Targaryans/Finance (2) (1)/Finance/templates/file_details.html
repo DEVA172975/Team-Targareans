@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Details - {{ filename }}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #38b2ac 0%, #319795 100%); color: white; padding: 30px; border-radius: 12px; margin-bottom: 30px; }
+        .nav { background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .nav a { text-decoration: none; color: #4a5568; margin-right: 20px; font-weight: 500; }
+        .nav a:hover { color: #2d3748; }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        .table th, .table td { padding: 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+        .table th { background: #f7fafc; font-weight: 600; }
+        .table tr:hover { background: #f7fafc; }
+        .back-btn { background: #4299e1; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; text-decoration: none; display: inline-block; margin-bottom: 20px; }
+        .back-btn:hover { background: #3182ce; }
+        .summary-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .stat-card { background: #f7fafc; padding: 15px; border-radius: 8px; text-align: center; }
+        .stat-value { font-size: 1.5em; font-weight: bold; color: #2d3748; }
+        .stat-label { color: #718096; font-size: 0.9em; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📄 {{ filename }}</h1>
+            <p>Detailed view of uploaded dataset records</p>
+        </div>
+
+        <div class="nav">
+            <a href="/">Dashboard</a>
+            <a href="/profit-analysis">Profit Analysis</a>
+            <a href="/loss-analysis">Loss Analysis</a>
+            <a href="/tax-analysis">Tax Analysis</a>
+            <a href="/data-history">Data History</a>
+        </div>
+
+        <a href="/data-history" class="back-btn">← Back to Data History</a>
+
+        {% if records %}
+            <div class="card">
+                <h3>📊 File Summary</h3>
+                <div class="summary-stats">
+                    <div class="stat-card">
+                        <div class="stat-value">{{ records|length }}</div>
+                        <div class="stat-label">Total Records</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${{ "{:,.0f}".format(records|sum(attribute='revenue')) }}</div>
+                        <div class="stat-label">Total Revenue</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${{ "{:,.0f}".format(records|sum(attribute='expenses')) }}</div>
+                        <div class="stat-label">Total Expenses</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${{ "{:,.0f}".format(records|sum(attribute='revenue') - records|sum(attribute='expenses')) }}</div>
+                        <div class="stat-label">Net Profit</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>📋 Record Details</h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Revenue</th>
+                            <th>Expenses</th>
+                            <th>Business Type</th>
+                            <th>Tax Type</th>
+                            <th>Service Revenue</th>
+                            <th>Product Revenue</th>
+                            <th>Profit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in records %}
+                            <tr>
+                                <td>{{ record.month }}</td>
+                                <td>${{ "{:,.2f}".format(record.revenue) }}</td>
+                                <td>${{ "{:,.2f}".format(record.expenses) }}</td>
+                                <td>{{ record.business_type.title() }}</td>
+                                <td>{{ record.tax_type.replace('_', ' ').title() }}</td>
+                                <td>${{ "{:,.2f}".format(record.service_revenue) }}</td>
+                                <td>${{ "{:,.2f}".format(record.product_revenue) }}</td>
+                                <td style="color: {{ 'green' if record.revenue - record.expenses > 0 else 'red' }}">
+                                    ${{ "{:,.2f}".format(record.revenue - record.expenses) }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="card">
+                <p style="text-align: center; color: #718096; padding: 40px;">No records found for this file.</p>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

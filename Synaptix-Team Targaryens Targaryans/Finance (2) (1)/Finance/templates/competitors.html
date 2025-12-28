@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Competitors - Financial Intelligence</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%); color: white; padding: 30px; border-radius: 12px; margin-bottom: 30px; }
+        .nav { background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .nav a { text-decoration: none; color: #4a5568; margin-right: 20px; font-weight: 500; }
+        .nav a:hover { color: #2d3748; }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .upload-area { border: 2px dashed #e2e8f0; border-radius: 8px; padding: 40px; text-align: center; margin: 20px 0; }
+        .upload-area.dragover { border-color: #f56565; background: #fffafa; }
+        .btn { background: #f56565; color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; margin: 5px; }
+        .btn:hover { background: #e53e3e; }
+        .btn-back { background: #4299e1; }
+        .btn-back:hover { background: #3182ce; }
+        .competitor-card { background: #f7fafc; border: 1px solid #e2e8f0; padding: 20px; margin: 15px 0; border-radius: 8px; }
+        .competitor-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 6px; }
+        .status.success { background: #c6f6d5; color: #22543d; }
+        .status.error { background: #fed7d7; color: #742a2a; }
+        .metric { display: flex; justify-content: space-between; margin: 8px 0; }
+        .metric-label { color: #718096; }
+        .metric-value { font-weight: 600; color: #2d3748; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏆 Competitor Analysis</h1>
+            <p>Upload and analyze competitor data for market positioning</p>
+            <p style="margin-top: 10px; opacity: 0.9;">Welcome, {{ user.name }}!</p>
+        </div>
+
+        <div class="nav">
+            <a href="/dashboard">Dashboard</a>
+            <a href="/revenue">Revenue</a>
+            <a href="/tax-rules">Tax Rules</a>
+            <a href="/competitors">Competitors</a>
+            <a href="/" onclick="document.cookie='session_token=; path=/'; return true;">Logout</a>
+        </div>
+
+        <div class="card">
+            <h3>📊 Upload Competitor Data</h3>
+            <p style="color: #718096; margin-bottom: 20px;">Upload CSV files containing competitor benchmarks and market data</p>
+            
+            <div class="upload-area" id="uploadArea">
+                <div>
+                    <h4>📁 Drop competitor data here or click to browse</h4>
+                    <p>Supported formats: CSV</p>
+                    <input type="file" id="fileInput" accept=".csv" style="display: none;">
+                    <button class="btn" onclick="document.getElementById('fileInput').click()">Choose File</button>
+                </div>
+            </div>
+
+            <div id="extractedData" style="display: none;">
+                <h4>📋 Extracted Competitor Data</h4>
+                <div id="dataPreview" style="background: #f7fafc; padding: 20px; border-radius: 8px; margin: 15px 0;"></div>
+                <button class="btn" onclick="saveCompetitorData()">Save Competitor Data</button>
+                <button class="btn btn-back" onclick="goBack()">Back</button>
+            </div>
+
+            <div id="status"></div>
+        </div>
+
+        <div class="card">
+            <h3>🎯 Market Benchmarks</h3>
+            <div class="competitor-grid">
+                <div class="competitor-card">
+                    <h4 style="color: #f56565; margin-bottom: 15px;">🛍️ Retail Sector</h4>
+                    <div class="metric">
+                        <span class="metric-label">Avg Monthly Revenue</span>
+                        <span class="metric-value">₹45,000</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Avg Profit Margin</span>
+                        <span class="metric-value">12%</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Avg Tax Rate</span>
+                        <span class="metric-value">15%</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Market Segment</span>
+                        <span class="metric-value">Local</span>
+                    </div>
+                </div>
+
+                <div class="competitor-card">
+                    <h4 style="color: #f56565; margin-bottom: 15px;">🛠️ Services Sector</h4>
+                    <div class="metric">
+                        <span class="metric-label">Avg Monthly Revenue</span>
+                        <span class="metric-value">₹65,000</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Avg Profit Margin</span>
+                        <span class="metric-value">25%</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Avg Tax Rate</span>
+                        <span class="metric-value">22%</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Market Segment</span>
+                        <span class="metric-value">Regional</span>
+                    </div>
+                </div>
+
+                <div class="competitor-card">
+                    <h4 style="color: #f56565; margin-bottom: 15px;">💻 Technology Sector</h4>
+                    <div class="metric">
+                        <span class="metric-label">Avg Monthly Revenue</span>
+                        <span class="metric-value">₹1,20,000</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Avg Profit Margin</span>
+                        <span class="metric-value">35%</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Avg Tax Rate</span>
+                        <span class="metric-value">20%</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Market Segment</span>
+                        <span class="metric-value">Startup</span>
+                    </div>
+                </div>
+
+                <div class="competitor-card">
+                    <h4 style="color: #f56565; margin-bottom: 15px;">🏭 Manufacturing Sector</h4>
+                    <div class="metric">
+                        <span class="metric-label">Avg Monthly Revenue</span>
+                        <span class="metric-value">₹85,000</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Avg Profit Margin</span>
+                        <span class="metric-value">18%</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Avg Tax Rate</span>
+                        <span class="metric-value">15%</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Market Segment</span>
+                        <span class="metric-value">Industrial</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // File upload handling
+        document.getElementById('fileInput').addEventListener('change', handleFileUpload);
+        
+        const uploadArea = document.getElementById('uploadArea');
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                handleFile(file);
+            }
+        }
+
+        async function handleFile(file) {
+            // Simulate file processing
+            document.getElementById('status').innerHTML = 
+                '<div class="status success">Processing competitor data...</div>';
+            
+            setTimeout(() => {
+                const mockData = `
+                    <h4>Extracted Competitor Data from ${file.name}:</h4>
+                    <table style="width: 100%; border-collapse: collapse; margin: 15px 0;">
+                        <tr style="background: #edf2f7;">
+                            <th style="padding: 10px; text-align: left; border: 1px solid #e2e8f0;">Company</th>
+                            <th style="padding: 10px; text-align: left; border: 1px solid #e2e8f0;">Revenue</th>
+                            <th style="padding: 10px; text-align: left; border: 1px solid #e2e8f0;">Profit Margin</th>
+                            <th style="padding: 10px; text-align: left; border: 1px solid #e2e8f0;">Sector</th>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">TechCorp Inc</td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">₹1,50,000</td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">40%</td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">Technology</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">RetailMax Ltd</td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">₹55,000</td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">15%</td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">Retail</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">ServicePro</td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">₹75,000</td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">28%</td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">Services</td>
+                        </tr>
+                    </table>
+                `;
+                
+                document.getElementById('dataPreview').innerHTML = mockData;
+                document.getElementById('extractedData').style.display = 'block';
+                document.getElementById('status').innerHTML = 
+                    '<div class="status success">Competitor data processed successfully!</div>';
+            }, 2000);
+        }
+
+        function saveCompetitorData() {
+            document.getElementById('status').innerHTML = 
+                '<div class="status success">Competitor data saved successfully!</div>';
+            document.getElementById('extractedData').style.display = 'none';
+        }
+
+        function goBack() {
+            document.getElementById('extractedData').style.display = 'none';
+            document.getElementById('fileInput').value = '';
+        }
+    </script>
+</body>
+</html>

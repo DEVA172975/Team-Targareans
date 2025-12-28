@@ -1,0 +1,6 @@
+month,revenue,expenses,business_type,tax_type,service_revenue,product_revenue
+2025-12,75000,45000,retail,product_tax,10000,65000
+2026-01,82000,48000,retail,product_tax,12000,70000
+2026-02,88000,52000,services,service_tax,88000,0
+2026-03,95000,55000,technology,service_tax,95000,0
+2026-04,102000,58000,manufacturing,product_tax,15000,87000

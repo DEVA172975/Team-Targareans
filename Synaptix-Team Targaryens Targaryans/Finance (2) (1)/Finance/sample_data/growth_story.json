@@ -1,0 +1,47 @@
+[
+  {
+    "month": "2024-01",
+    "revenue": 25000,
+    "expenses": 20000,
+    "business_type": "services",
+    "tax_type": "service_tax",
+    "service_revenue": 25000,
+    "product_revenue": 0
+  },
+  {
+    "month": "2024-02",
+    "revenue": 32000,
+    "expenses": 22000,
+    "business_type": "services",
+    "tax_type": "service_tax",
+    "service_revenue": 32000,
+    "product_revenue": 0
+  },
+  {
+    "month": "2024-03",
+    "revenue": 45000,
+    "expenses": 28000,
+    "business_type": "services",
+    "tax_type": "service_tax",
+    "service_revenue": 45000,
+    "product_revenue": 0
+  },
+  {
+    "month": "2024-04",
+    "revenue": 58000,
+    "expenses": 35000,
+    "business_type": "services",
+    "tax_type": "service_tax",
+    "service_revenue": 58000,
+    "product_revenue": 0
+  },
+  {
+    "month": "2024-05",
+    "revenue": 72000,
+    "expenses": 42000,
+    "business_type": "services",
+    "tax_type": "service_tax",
+    "service_revenue": 72000,
+    "product_revenue": 0
+  }
+]

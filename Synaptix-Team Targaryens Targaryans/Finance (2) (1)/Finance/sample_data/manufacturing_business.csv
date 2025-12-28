@@ -1,0 +1,6 @@
+month,revenue,expenses,business_type,tax_type,service_revenue,product_revenue
+2024-01,65000,45000,manufacturing,product_tax,5000,60000
+2024-02,68000,47000,manufacturing,product_tax,6000,62000
+2024-03,72000,50000,manufacturing,product_tax,7000,65000
+2024-04,75000,52000,manufacturing,product_tax,8000,67000
+2024-05,78000,54000,manufacturing,product_tax,9000,69000

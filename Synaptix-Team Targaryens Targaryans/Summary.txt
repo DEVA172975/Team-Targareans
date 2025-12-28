@@ -1,0 +1,149 @@
+1. Description of the Problem , We are solving:
+
+   Businesses—especially small and medium enterprises—generate financial data continuously in the form of revenue records, tax-related documents, and competitor information. However, most existing systems that process this data operate in a static and batch-oriented manner. Once data is uploaded and analyzed, the generated insights remain unchanged until the user manually reprocesses the information. This creates a critical gap between real-world change and AI-driven understanding.
+
+Traditional AI systems worsen this problem. Transformer-based models and conventional Retrieval-Augmented Generation (RAG) pipelines treat each interaction as isolated. They do not retain long-term contextual memory, nor do they automatically adapt when underlying documents change. As a result:
+
+Insights become outdated quickly
+
+Businesses rely on stale conclusions
+
+Changes in revenue, tax rules, or competitive conditions go unnoticed
+
+Decision-making is delayed or misinformed
+
+Furthermore, existing accounting and analytics tools focus on recording data, not reasoning over evolving data. They present numbers and charts but fail to explain why a change occurred or what it implies for the business.
+
+The core problem addressed by this project is the absence of an intelligent system that can continuously observe financial data, remember past context, and re-evaluate insights automatically as new information arrives. There is a strong need for an AI system that behaves less like a static calculator and more like a living financial analyst.
+
+2. Tentative Architecture Diagram
+
+   Below is the tentative architecture of the proposed system, designed to clearly demonstrate live data adaptation and agentic reasoning.
+
+┌──────────────────┐
+│      User Interface   │
+│  (Web App / UI Pages) │
+│  - Login / Register   │
+│  - Revenue Page       │
+│  - Tax Rules Page     │
+│  - Competitors Page   │
+└─────────┬────────┘
+          │
+          ▼
+┌──────────────────┐
+│ Application Logic     │
+│ & Database Layer      │
+│ - User authentication │
+│ - Email verification  │
+│ - MySQL (users,       │
+│   metadata, history)  │
+└─────────┬────────┘
+          │
+          ▼
+┌──────────────────┐
+│ Live Data Layer       │
+│ (User Data Files)     │
+│ - Revenue files       │
+│ - Tax rule documents  │
+│ - Competitor data     │
+└─────────┬────────┘
+          │
+          ▼
+┌──────────────────┐
+│ Pathway Streaming     │
+│ & Memory Engine       │
+│ - Live document watch │
+│ - Incremental updates │
+│ - No stale embeddings │
+└─────────┬────────┘
+          │
+          ▼
+┌──────────────────┐
+│ Agentic AI Layer      │
+│ - Change detection    │
+│ - Contextual memory   │
+│ - Financial reasoning │
+│ - Explanation logic   │
+└─────────┬────────┘
+          │
+          ▼
+┌──────────────────┐
+│ Insight Output        │
+│ - Updated metrics     │
+│ - Best/Worst analysis │
+│ - Natural language    │
+│   explanations        │
+└──────────────────┘
+
+
+This layered architecture ensures:
+
+  Clear separation of concerns
+
+  Continuous data freshness
+
+  Scalable reasoning
+
+  Transparent explanation of results
+
+3. Approach and Why It Matters:
+3.1 Proposed Approach:
+
+The project adopts an agentic, event-driven approach to financial intelligence rather than a traditional query-based AI model.
+
+Step 1: User-Centric Data Ingestion
+
+Users upload revenue data, tax rules, and competitor information through dedicated application pages. These inputs are validated and stored securely, with metadata maintained in a relational database.
+
+Step 2: Live Data Monitoring with Pathway
+
+Instead of processing data once and freezing insights, the system uses Pathway’s live document indexing and streaming engine to continuously monitor data sources. Any modification to a file—whether a revenue update or a tax rule change—is detected immediately.
+
+Step 3: Persistent Contextual Memory
+
+The system maintains awareness of historical data states. This allows the AI to understand not just the current values, but how those values evolved over time.
+
+Step 4: Agentic Reasoning
+
+ An AI agent performs multi-step reasoning:
+
+ It compares new data against previous states
+
+ Identifies meaningful deviations or trends
+
+ Evaluates tax impact, revenue efficiency, and competitive positioning
+
+ This reasoning process is autonomous and does not require explicit user prompts   after every data change.
+
+Step 5: Explainable Insight Generation
+
+ The final output is not limited to numbers or charts. The AI generates natural language explanations describing:
+
+ What changed
+
+ Why it changed
+
+ What the change means for the business
+
+ These insights are presented dynamically in the user interface.
+
+3.2 Why This Approach Matters
+1. Solves the Stale Knowledge Problem
+
+   By using live data streaming, the system ensures the AI never reasons on outdated information. This directly addresses one of the most significant limitations of current AI applications.
+
+2. Demonstrates True Agentic Behavior
+
+   The AI does not merely respond to questions—it observes, adapts, and re-evaluates continuously, which is a key characteristic of next-generation intelligent systems.
+
+3. Enhances Decision-Making Quality
+
+   Business owners receive timely, contextual insights rather than static reports, enabling faster and more informed decisions.
+
+4. Prioritizes Explainability and Trust
+
+   Clear explanations build user confidence and make AI outputs actionable rather than opaque.
+
+5. Aligns with the Future of AI Systems
+
+   The approach reflects a shift from static model usage to experience-driven, memory-aware intelligence, making it highly relevant for modern enterprise applications.

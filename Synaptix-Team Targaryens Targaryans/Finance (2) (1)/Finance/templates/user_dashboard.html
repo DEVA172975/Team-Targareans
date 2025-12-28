@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Financial Data - Live Financial Intelligence</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            background: linear-gradient(45deg, #667eea, #764ba2, #f093fb, #f5576c, #4facfe, #00f2fe);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            min-height: 100vh;
+        }
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            color: white; padding: 30px; border-radius: 20px; margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            transform: perspective(1000px) rotateX(5deg);
+            transition: transform 0.3s ease;
+        }
+        .header:hover { transform: perspective(1000px) rotateX(0deg) scale(1.02); }
+        .nav { 
+            background: linear-gradient(145deg, #ffffff, #f0f0f0); 
+            padding: 15px; border-radius: 15px; margin-bottom: 20px; 
+            box-shadow: 10px 10px 20px #d1d9e6, -10px -10px 20px #ffffff;
+        }
+        .nav a { text-decoration: none; color: #4a5568; margin-right: 20px; font-weight: 500; }
+        .nav a:hover { color: #2d3748; }
+        .card { 
+            background: linear-gradient(145deg, #ffffff, #f0f0f0); 
+            padding: 25px; border-radius: 20px; 
+            box-shadow: 20px 20px 60px #bebebe, -20px -20px 60px #ffffff;
+            margin-bottom: 20px;
+            transform: perspective(1000px) rotateY(5deg);
+            transition: all 0.3s ease;
+        }
+        .card:hover { 
+            transform: perspective(1000px) rotateY(0deg) translateY(-10px);
+            box-shadow: 25px 25px 80px #bebebe, -25px -25px 80px #ffffff;
+        }
+        .data-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .data-item { 
+            background: linear-gradient(145deg, #f7fafc, #edf2f7); 
+            padding: 20px; border-radius: 15px; text-align: center;
+            box-shadow: 10px 10px 20px #d1d9e6, -10px -10px 20px #ffffff;
+        }
+        .data-label { color: #718096; font-size: 0.9em; margin-bottom: 5px; }
+        .data-value { font-size: 1.8em; font-weight: bold; color: #2d3748; }
+        .profit { color: #48bb78; }
+        .loss { color: #f56565; }
+        .no-data { text-align: center; color: #718096; padding: 40px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 My Financial Data</h1>
+            <p>Your latest financial information at a glance</p>
+            <p style="margin-top: 10px; opacity: 0.9;">Welcome, {{ user.name }}!</p>
+        </div>
+
+        <div class="nav">
+            <a href="/dashboard">Dashboard</a>
+            <a href="/user-dashboard">My Data</a>
+            <a href="/revenue">Revenue</a>
+            <a href="/tax-rules">Tax Rules</a>
+            <a href="/competitors">Competitors</a>
+            <a href="/" onclick="document.cookie='session_token=; path=/'; return true;">Logout</a>
+        </div>
+
+        {% if latest_data %}
+            <div class="card">
+                <h3>📈 Latest Financial Entry</h3>
+                <div class="data-grid">
+                    <div class="data-item">
+                        <div class="data-label">Month</div>
+                        <div class="data-value">{{ latest_data.month }}</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">Revenue</div>
+                        <div class="data-value">₹{{ "{:,.0f}".format(latest_data.revenue) }}</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">Expenses</div>
+                        <div class="data-value">₹{{ "{:,.0f}".format(latest_data.expenses) }}</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">Profit/Loss</div>
+                        <div class="data-value {{ 'profit' if latest_data.revenue > latest_data.expenses else 'loss' }}">
+                            ₹{{ "{:,.0f}".format(latest_data.revenue - latest_data.expenses) }}
+                        </div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">Business Type</div>
+                        <div class="data-value">{{ latest_data.business_type.title() }}</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">Tax Type</div>
+                        <div class="data-value">{{ latest_data.tax_type.replace('_', ' ').title() }}</div>
+                    </div>
+                </div>
+            </div>
+
+            {% if latest_data.service_revenue > 0 or latest_data.product_revenue > 0 %}
+                <div class="card">
+                    <h3>🔍 Revenue Breakdown</h3>
+                    <div class="data-grid">
+                        <div class="data-item">
+                            <div class="data-label">Service Revenue</div>
+                            <div class="data-value">₹{{ "{:,.0f}".format(latest_data.service_revenue) }}</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="data-label">Product Revenue</div>
+                            <div class="data-value">₹{{ "{:,.0f}".format(latest_data.product_revenue) }}</div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="card">
+                <div class="no-data">
+                    <h3>📝 No Data Available</h3>
+                    <p>You haven't added any financial data yet.</p>
+                    <p><a href="/dashboard" style="color: #4299e1;">Go to Dashboard</a> to add your first entry.</p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

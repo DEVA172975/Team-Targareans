@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revenue Data - Financial Intelligence</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            background: linear-gradient(45deg, #ff9a9e, #fecfef, #fecfef, #a8edea, #fed6e3);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            min-height: 100vh;
+        }
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { 
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); 
+            color: white; padding: 30px; border-radius: 20px; margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            transform: perspective(1000px) rotateX(5deg);
+            transition: transform 0.3s ease;
+        }
+        .header:hover { transform: perspective(1000px) rotateX(0deg) scale(1.02); }
+        .nav { 
+            background: linear-gradient(145deg, #ffffff, #f0f0f0); 
+            padding: 15px; border-radius: 15px; margin-bottom: 20px; 
+            box-shadow: 10px 10px 20px #d1d9e6, -10px -10px 20px #ffffff;
+        }
+        .nav a { text-decoration: none; color: #4a5568; margin-right: 20px; font-weight: 500; }
+        .nav a:hover { color: #2d3748; }
+        .card { 
+            background: linear-gradient(145deg, #ffffff, #f0f0f0); 
+            padding: 25px; border-radius: 20px; 
+            box-shadow: 20px 20px 60px #bebebe, -20px -20px 60px #ffffff;
+            margin-bottom: 20px;
+            transform: perspective(1000px) rotateY(5deg);
+            transition: all 0.3s ease;
+        }
+        .card:hover { 
+            transform: perspective(1000px) rotateY(0deg) translateY(-10px);
+            box-shadow: 25px 25px 80px #bebebe, -25px -25px 80px #ffffff;
+        }
+        .upload-area { 
+            border: 2px dashed #e2e8f0; border-radius: 15px; padding: 40px; text-align: center; margin: 20px 0;
+            background: linear-gradient(145deg, #f7fafc, #edf2f7);
+            box-shadow: inset 10px 10px 20px #d1d9e6, inset -10px -10px 20px #ffffff;
+        }
+        .upload-area.dragover { border-color: #48bb78; background: #f0fff4; }
+        .btn { 
+            background: linear-gradient(145deg, #48bb78, #38a169); 
+            color: white; padding: 12px 24px; border: none; border-radius: 15px; 
+            cursor: pointer; font-weight: 500; margin: 5px;
+            box-shadow: 8px 8px 16px #bebebe, -8px -8px 16px #ffffff;
+            transition: all 0.3s ease;
+        }
+        .btn:hover { 
+            transform: translateY(-2px);
+            box-shadow: 12px 12px 20px #bebebe, -12px -12px 20px #ffffff;
+        }
+        .btn-back { background: linear-gradient(145deg, #4299e1, #3182ce); }
+        .btn-clear { background: linear-gradient(145deg, #f56565, #e53e3e); }
+        .extracted-data { 
+            background: linear-gradient(145deg, #f7fafc, #edf2f7); 
+            padding: 20px; border-radius: 15px; margin: 15px 0;
+            box-shadow: inset 5px 5px 10px #d1d9e6, inset -5px -5px 10px #ffffff;
+        }
+        .status { padding: 10px; margin: 10px 0; border-radius: 10px; }
+        .status.success { background: #c6f6d5; color: #22543d; }
+        .status.error { background: #fed7d7; color: #742a2a; }
+        .chart-container { 
+            background: linear-gradient(145deg, #ffffff, #f0f0f0);
+            padding: 20px; border-radius: 15px; margin: 20px 0;
+            box-shadow: 15px 15px 30px #bebebe, -15px -15px 30px #ffffff;
+        }
+        .info-section {
+            background: linear-gradient(145deg, #e6fffa, #b2f5ea);
+            padding: 20px; border-radius: 15px; margin-top: 30px;
+            box-shadow: 10px 10px 20px #a0aec0, -10px -10px 20px #ffffff;
+        }
+        .info-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;
+        }
+        .info-card {
+            background: linear-gradient(145deg, #ffffff, #f7fafc);
+            padding: 15px; border-radius: 10px; text-align: center;
+            box-shadow: 5px 5px 10px #d1d9e6, -5px -5px 10px #ffffff;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 Revenue Data Management</h1>
+            <p>Upload and manage your business revenue data</p>
+            <p style="margin-top: 10px; opacity: 0.9;">Welcome, {{ user.name }}!</p>
+        </div>
+
+        <div class="nav">
+            <a href="/dashboard">Dashboard</a>
+            <a href="/revenue">Revenue</a>
+            <a href="/tax-rules">Tax Rules</a>
+            <a href="/competitors">Competitors</a>
+            <a href="/" onclick="document.cookie='session_token=; path=/'; return true;">Logout</a>
+        </div>
+
+        <div class="card">
+            <h3>📊 Upload Revenue Data</h3>
+            <p style="color: #718096; margin-bottom: 20px;">Upload CSV or Excel files containing your revenue data</p>
+            
+            <div class="upload-area" id="uploadArea">
+                <div>
+                    <h4>📁 Drop files here or click to browse</h4>
+                    <p>Supported formats: CSV, Excel (.xlsx, .xls)</p>
+                    <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" style="display: none;">
+                    <button class="btn" onclick="document.getElementById('fileInput').click()">Choose File</button>
+                <button class="btn btn-clear" onclick="clearUploadArea()">Clear Upload</button>
+                </div>
+            </div>
+
+            <div id="extractedData" style="display: none;">
+                <h4>📋 Extracted Data Preview</h4>
+                <div class="extracted-data" id="dataPreview"></div>
+                <button class="btn" onclick="saveData()">Save Data</button>
+                <button class="btn btn-back" onclick="goBack()">Back</button>
+            </div>
+
+            <div id="status"></div>
+        </div>
+
+        <div class="card">
+            <h3>📈 Recent Revenue Records</h3>
+            <div id="recentRecords">
+                <p style="color: #718096; text-align: center; padding: 20px;">No revenue data uploaded yet.</p>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <h3>📈 Revenue Upload History</h3>
+            <canvas id="revenueChart" width="400" height="200"></canvas>
+        </div>
+
+        <div class="info-section">
+            <h3>📊 Revenue Guidelines & Tax Information</h3>
+            <div class="info-grid">
+                <div class="info-card">
+                    <h4>Service Revenue</h4>
+                    <p><strong>Tax Rate:</strong> 18-28%</p>
+                    <p><strong>GST:</strong> Applicable</p>
+                </div>
+                <div class="info-card">
+                    <h4>Product Revenue</h4>
+                    <p><strong>Tax Rate:</strong> 12-18%</p>
+                    <p><strong>GST:</strong> Category Based</p>
+                </div>
+                <div class="info-card">
+                    <h4>File Formats</h4>
+                    <p><strong>Supported:</strong> CSV, Excel</p>
+                    <p><strong>Max Size:</strong> 10MB</p>
+                </div>
+                <div class="info-card">
+                    <h4>Data Fields</h4>
+                    <p><strong>Required:</strong> Month, Revenue, Expenses</p>
+                    <p><strong>Optional:</strong> Business Type</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let revenueChart;
+        
+        function initChart() {
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+            revenueChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Revenue (₹)',
+                        data: [],
+                        borderColor: '#48bb78',
+                        backgroundColor: 'rgba(72, 187, 120, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'top' }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+        
+        function clearUploadArea() {
+            document.getElementById('fileInput').value = '';
+            document.getElementById('extractedData').style.display = 'none';
+            document.getElementById('status').innerHTML = '<div class="status success">Upload area cleared!</div>';
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            initChart();
+        });
+        let extractedFileData = null;
+
+        // File upload handling
+        document.getElementById('fileInput').addEventListener('change', handleFileUpload);
+        
+        const uploadArea = document.getElementById('uploadArea');
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                handleFile(file);
+            }
+        }
+
+        async function handleFile(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            try {
+                const response = await fetch('/api/upload-dataset', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    document.getElementById('status').innerHTML = 
+                        `<div class="status success">File processed successfully! ${result.message}</div>`;
+                    loadRecentRecords();
+                } else {
+                    document.getElementById('status').innerHTML = 
+                        `<div class="status error">Error: ${result.detail || result.message}</div>`;
+                }
+            } catch (error) {
+                document.getElementById('status').innerHTML = 
+                    `<div class="status error">Upload failed: ${error.message}</div>`;
+            }
+        }
+
+        function saveData() {
+            document.getElementById('status').innerHTML = 
+                '<div class="status success">Data saved successfully!</div>';
+            document.getElementById('extractedData').style.display = 'none';
+            loadRecentRecords();
+        }
+
+        function goBack() {
+            document.getElementById('extractedData').style.display = 'none';
+            document.getElementById('fileInput').value = '';
+        }
+
+        async function loadRecentRecords() {
+            try {
+                const response = await fetch('/api/summary');
+                const data = await response.json();
+                
+                if (data.status !== 'No data available') {
+                    document.getElementById('recentRecords').innerHTML = `
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                            <div style="background: #f7fafc; padding: 15px; border-radius: 8px; text-align: center;">
+                                <div style="font-size: 1.5em; font-weight: bold; color: #48bb78;">₹${data.latest_revenue.toLocaleString()}</div>
+                                <div style="color: #718096;">Latest Revenue</div>
+                            </div>
+                            <div style="background: #f7fafc; padding: 15px; border-radius: 8px; text-align: center;">
+                                <div style="font-size: 1.5em; font-weight: bold; color: #f56565;">₹${data.latest_expenses.toLocaleString()}</div>
+                                <div style="color: #718096;">Latest Expenses</div>
+                            </div>
+                            <div style="background: #f7fafc; padding: 15px; border-radius: 8px; text-align: center;">
+                                <div style="font-size: 1.5em; font-weight: bold; color: #4299e1;">${data.months_tracked}</div>
+                                <div style="color: #718096;">Months Tracked</div>
+                            </div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Failed to load recent records:', error);
+            }
+        }
+
+        // Load recent records on page load
+        loadRecentRecords();
+    </script>
+</body>
+</html>

@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loss Analysis - Financial Agent</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            background: linear-gradient(45deg, #fed7d7, #feb2b2, #fc8181, #f56565, #e53e3e);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            min-height: 100vh;
+        }
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { 
+            background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%); 
+            color: white; padding: 30px; border-radius: 20px; margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            transform: perspective(1000px) rotateX(5deg);
+            transition: transform 0.3s ease;
+        }
+        .header:hover { transform: perspective(1000px) rotateX(0deg) scale(1.02); }
+        .nav { 
+            background: linear-gradient(145deg, #ffffff, #f0f0f0); 
+            padding: 15px; border-radius: 15px; margin-bottom: 20px; 
+            box-shadow: 10px 10px 20px #d1d9e6, -10px -10px 20px #ffffff;
+        }
+        .nav a { text-decoration: none; color: #4a5568; margin-right: 20px; font-weight: 500; }
+        .nav a:hover { color: #2d3748; }
+        .card { 
+            background: linear-gradient(145deg, #ffffff, #f0f0f0); 
+            padding: 25px; border-radius: 20px; 
+            box-shadow: 20px 20px 60px #bebebe, -20px -20px 60px #ffffff;
+            margin-bottom: 20px;
+            transform: perspective(1000px) rotateY(5deg);
+            transition: all 0.3s ease;
+        }
+        .card:hover { 
+            transform: perspective(1000px) rotateY(0deg) translateY(-10px);
+            box-shadow: 25px 25px 80px #bebebe, -25px -25px 80px #ffffff;
+        }
+        .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        .metric-card { 
+            background: linear-gradient(145deg, #f7fafc, #edf2f7); 
+            padding: 20px; border-radius: 15px; text-align: center;
+            box-shadow: 10px 10px 20px #d1d9e6, -10px -10px 20px #ffffff;
+        }
+        .metric-value { font-size: 2em; font-weight: bold; color: #2d3748; }
+        .metric-label { color: #718096; margin-top: 5px; }
+        .risk-high { color: #f56565; }
+        .risk-low { color: #48bb78; }
+        .alert { 
+            background: linear-gradient(145deg, #fed7d7, #fbb6ce); 
+            border-left: 4px solid #f56565; padding: 15px; margin: 15px 0; border-radius: 15px;
+            box-shadow: 10px 10px 20px #d1d9e6, -10px -10px 20px #ffffff;
+        }
+        .success { 
+            background: linear-gradient(145deg, #c6f6d5, #9ae6b4); 
+            border-left: 4px solid #48bb78; padding: 15px; margin: 15px 0; border-radius: 15px;
+            box-shadow: 10px 10px 20px #d1d9e6, -10px -10px 20px #ffffff;
+        }
+        .btn-clear { 
+            background: linear-gradient(145deg, #f56565, #e53e3e); 
+            color: white; padding: 10px 20px; border: none; border-radius: 15px; 
+            cursor: pointer; font-weight: 500; margin: 10px 0;
+            box-shadow: 8px 8px 16px #bebebe, -8px -8px 16px #ffffff;
+            transition: all 0.3s ease;
+        }
+        .btn-clear:hover { 
+            transform: translateY(-2px);
+            box-shadow: 12px 12px 20px #bebebe, -12px -12px 20px #ffffff;
+        }
+        .chart-container { 
+            background: linear-gradient(145deg, #ffffff, #f0f0f0);
+            padding: 20px; border-radius: 15px; margin: 20px 0;
+            box-shadow: 15px 15px 30px #bebebe, -15px -15px 30px #ffffff;
+        }
+        .info-section {
+            background: linear-gradient(145deg, #fff5f5, #fed7d7);
+            padding: 20px; border-radius: 15px; margin-top: 30px;
+            box-shadow: 10px 10px 20px #a0aec0, -10px -10px 20px #ffffff;
+        }
+        .info-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;
+        }
+        .info-card {
+            background: linear-gradient(145deg, #ffffff, #f7fafc);
+            padding: 15px; border-radius: 10px; text-align: center;
+            box-shadow: 5px 5px 10px #d1d9e6, -5px -5px 10px #ffffff;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📉 Loss Analysis</h1>
+            <p>Risk assessment and loss prevention insights</p>
+        </div>
+
+        <div class="nav">
+            <a href="/">Dashboard</a>
+            <a href="/profit-analysis">Profit Analysis</a>
+            <a href="/loss-analysis">Loss Analysis</a>
+            <a href="/tax-analysis">Tax Analysis</a>
+        </div>
+
+        {% if analysis.get('status') == 'No data' %}
+            <div class="card">
+                <p style="text-align: center; color: #718096; padding: 40px;">No loss data available. Add revenue data to see analysis.</p>
+            </div>
+        {% else %}
+            <div class="metric-grid">
+                <div class="metric-card">
+                    <div class="metric-value risk-high">₹{{ "{:,.2f}".format(analysis.total_losses) }}</div>
+                    <div class="metric-label">Total Losses</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">{{ analysis.loss_months_count }}</div>
+                    <div class="metric-label">Loss Months</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value risk-high">₹{{ "{:,.2f}".format(analysis.biggest_loss) }}</div>
+                    <div class="metric-label">Biggest Single Loss</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value {{ 'risk-low' if analysis.risk_level == 'Low' else 'risk-high' }}">{{ analysis.risk_level }}</div>
+                    <div class="metric-label">Risk Level</div>
+                </div>
+            </div>
+
+            {% if analysis.risk_level == 'High' %}
+                <div class="alert">
+                    <strong>⚠️ High Risk Alert:</strong> You've had losses in {{ analysis.loss_months_count }} months. This indicates potential operational or market challenges that need immediate attention.
+                </div>
+            {% else %}
+                <div class="success">
+                    <strong>✅ Low Risk:</strong> Your business shows good financial stability with minimal loss periods.
+                </div>
+            {% endif %}
+
+            <div class="card">
+                <h3>📊 Loss Trend Analysis</h3>
+                <p style="font-size: 1.2em; margin: 15px 0; color: #2d3748;">
+                    Trend: <strong>{{ analysis.loss_trend }}</strong>
+                </p>
+                
+                {% if analysis.loss_trend == 'Improving' %}
+                    <p style="color: #48bb78;">📈 Your loss situation is improving over time. Continue current strategies and monitor closely.</p>
+                {% else %}
+                    <p style="color: #f56565;">📉 Loss trend is stable or worsening. Consider reviewing operational efficiency and cost management.</p>
+                {% endif %}
+            </div>
+
+            <div class="card">
+                <h3>💡 Loss Prevention Recommendations</h3>
+                
+                {% if analysis.total_losses > 0 %}
+                    <ul style="margin: 15px 0; padding-left: 20px; color: #4a5568;">
+                        <li>Review expense categories during loss months to identify cost drivers</li>
+                        <li>Implement better cash flow forecasting to predict potential loss periods</li>
+                        <li>Consider diversifying revenue streams to reduce dependency risks</li>
+                        <li>Establish emergency fund equal to 3-6 months of expenses</li>
+                        {% if analysis.biggest_loss > 10000 %}
+                            <li><strong>Priority:</strong> Investigate the cause of your largest loss (₹{{"{:,.2f}".format(analysis.biggest_loss)}}) to prevent recurrence</li>
+                        {% endif %}
+                    </ul>
+                {% else %}
+                    <p style="color: #48bb78;">🎉 Excellent! No losses detected. Maintain current operational excellence and continue monitoring key metrics.</p>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        <div class="chart-container">
+            <h3>📉 Loss Trend Analysis</h3>
+            <canvas id="lossChart" width="400" height="200"></canvas>
+        </div>
+
+        <button class="btn-clear" onclick="clearLossData()">Clear Loss Analysis Data</button>
+
+        <div class="info-section">
+            <h3>⚠️ Risk Management Guidelines</h3>
+            <div class="info-grid">
+                <div class="info-card">
+                    <h4>Low Risk</h4>
+                    <p><strong>Loss Months:</strong> <30%</p>
+                    <p><strong>Action:</strong> Monitor</p>
+                </div>
+                <div class="info-card">
+                    <h4>Medium Risk</h4>
+                    <p><strong>Loss Months:</strong> 30-50%</p>
+                    <p><strong>Action:</strong> Review Operations</p>
+                </div>
+                <div class="info-card">
+                    <h4>High Risk</h4>
+                    <p><strong>Loss Months:</strong> >50%</p>
+                    <p><strong>Action:</strong> Immediate Action</p>
+                </div>
+                <div class="info-card">
+                    <h4>Emergency Fund</h4>
+                    <p><strong>Recommended:</strong> 3-6 months</p>
+                    <p><strong>Purpose:</strong> Loss Buffer</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let lossChart;
+        
+        function initChart() {
+            const ctx = document.getElementById('lossChart').getContext('2d');
+            lossChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Losses (₹)',
+                        data: [],
+                        borderColor: '#f56565',
+                        backgroundColor: 'rgba(245, 101, 101, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'top' }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+        
+        function clearLossData() {
+            if (confirm('Are you sure you want to clear loss analysis data?')) {
+                fetch('/api/clear-loss-data', { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+                        alert('Loss data cleared successfully!');
+                        location.reload();
+                    })
+                    .catch(error => alert('Error clearing data'));
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            initChart();
+        });
+    </script>
+</body>
+</html>
