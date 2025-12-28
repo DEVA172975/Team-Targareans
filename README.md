@@ -19,5 +19,6 @@
 
 <img width="2186" height="1068" alt="Screenshot 2025-12-28 230905" src="https://github.com/user-attachments/assets/99f75ea2-4f2a-4ea5-a01f-174a6fb9c2ea" />
 
-EXPLANATION VIDEO:
+
+
 
